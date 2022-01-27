@@ -11,33 +11,37 @@ public class MarkdownParse {
         // find the next [, then find the ], then find the (, then take up to
         // the next )
         int currentIndex = 0;
-        // || markdown.charAt(currentIndex - 1) == '('
-        while(currentIndex < markdown.length()) {
-            int nextOpenBracket = markdown.indexOf("[", currentIndex);
-            boolean flag = false;
-            
 
-            // For test-break-2
+        while(currentIndex < markdown.length()) {
+            // Flag to keep track of exclamation
+            boolean flag = false;
+            int nextOpenBracket = markdown.indexOf("[", currentIndex);
+
+            // For test case 1 (bug with text after paren)
             if(nextOpenBracket == -1) {
                 break;
             }
+            
 
             int nextCloseBracket = markdown.indexOf("]", nextOpenBracket);
             int openParen = markdown.indexOf("(", nextCloseBracket);
             int closeParen = markdown.indexOf(")", openParen);
+            // Fixes test-file3 and test-file4
+            if (closeParen == -1) {
+                break;
+            }
 
-
-            // For test-break-1
-            if(markdown.charAt(closeParen - 1) == '(') {
+            // For test case 2 (bug for paren inside link)
+            if(closeParen > 0 && markdown.charAt(closeParen - 1) == '(') {
                 closeParen = markdown.indexOf(")", closeParen + 1);
             }
 
-            // For test-break-3
-            if (nextOpenBracket != 0) {
-                if (markdown.charAt(nextOpenBracket-1)=='!') {
-                    flag=true;
-                }
+            // For test case 3 (bug with image instead of link)
+            if(nextOpenBracket > 0 && markdown.charAt(nextOpenBracket - 1) == '!') {
+                flag = true;
             }
+
+            // For both test case 2 and 3
             if(nextCloseBracket + 1 == openParen && !flag) {
                 toReturn.add(markdown.substring(openParen + 1, closeParen));
             }
@@ -53,3 +57,11 @@ public class MarkdownParse {
         System.out.println(links);
     }
 }
+
+/**
+ * Tests that don't work:
+ * - test-file3.md
+ * - test-file4.md
+ * - test-file7.md
+ * - test-file8.md
+ */
