@@ -11,6 +11,8 @@ public class MarkdownParse {
         // the next )
         int currentIndex = 0;
         while(currentIndex < markdown.length()) {
+            // Flag to keep track of exclamation
+            boolean flag = false;
             int nextOpenBracket = markdown.indexOf("[", currentIndex);
 
             // For test case 1 (bug with text after paren)
@@ -21,7 +23,12 @@ public class MarkdownParse {
             int nextCloseBracket = markdown.indexOf("]", nextOpenBracket);
             int openParen = markdown.indexOf("(", nextCloseBracket);
             int closeParen = markdown.indexOf(")", openParen);
-            if(nextCloseBracket + 1 == openParen) {
+
+            // For test case 2 (bug for paren inside link)
+            if(closeParen > 0 && markdown.charAt(closeParen - 1) == '(') {
+                closeParen = markdown.indexOf(")", closeParen + 1);
+            }
+            if(nextCloseBracket + 1 == openParen && !flag) {
                 toReturn.add(markdown.substring(openParen + 1, closeParen));
             }
             currentIndex = closeParen + 1;
